@@ -79,7 +79,15 @@ class ModelBase(type):
 
         # Create the class.
         module = attrs.pop('__module__')
-        new_class = super_new(cls, name, bases, {'__module__': module})
+
+        # reference: https://stackoverflow.com/questions/41343263/provide-classcell-example-for-python-3-6-metaclass/41347038#41347038
+        new_attrs = {'__module__': module}
+        classcell = attrs.pop('__classcell__', None)
+        if classcell is not None:
+            new_attrs['__classcell__'] = classcell
+        new_class = super_new(cls, name, bases, new_attrs)
+        # new_class = super_new(cls, name, bases, {'__module__': module})
+
         attr_meta = attrs.pop('Meta', None)
         abstract = getattr(attr_meta, 'abstract', False)
         if not attr_meta:
